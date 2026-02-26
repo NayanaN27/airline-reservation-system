@@ -7,15 +7,15 @@ assignees: ''
 
 ---
 
-## Issue Type (Add new tests / Strengthen weak tests / Fix flakiness / Improve test infrastructure)
+## Issue Type <sub>(Add new tests / Strengthen weak tests / Fix flakiness / Improve test infrastructure)</sub>
 
 ---
 
-## Test Layer (unit / MVC / integration / data)
+## Test Layer <sub>(unit / MVC / integration / data)</sub>
 
 ---
 
-## Behavior Protected (What regression does this prevent?)
+## Behavior Protected <sub>(What regression does this prevent?)</sub>
 
 ---
 
@@ -26,8 +26,8 @@ assignees: ''
 
 ---
 
-## Test Approach (What will you assert? What will you mock vs keep real?)
+## Test Approach <sub>(What will you assert? What will you mock vs keep real?)</sub>
 
 ---
 
-## Priority (High / Medium / Low)
+## Priority <sub>(High / Medium / Low)</sub>
