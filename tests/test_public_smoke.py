@@ -1,4 +1,3 @@
-# tests/test_public_smoke.py
 def test_home_page_loads(client):
     r = client.get("/")
     assert r.status_code == 200

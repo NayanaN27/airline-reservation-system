@@ -1,4 +1,3 @@
-# tests/test_search_result.py
 from app.models.flight import Flight
 
 def test_search_result_returns_seeded_flight(client, app):
