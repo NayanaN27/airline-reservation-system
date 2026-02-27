@@ -2,12 +2,12 @@ import os
 
 class Config:
     # Flask配置
-    SECRET_KEY = 'your-secret-key-here'  # 用于session加密
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')  # 用于session加密
 
     # 数据库配置
     DB_HOST = 'localhost'
-    DB_USER = 'root'
-    DB_PASSWORD = ''  # 如果有密码，请填写
+    DB_USER = 'airuser'
+    DB_PASSWORD = 'StrongPassword123!'  # 如果有密码，请填写
     DB_NAME = 'air'
 
     # SQLAlchemy 配置
