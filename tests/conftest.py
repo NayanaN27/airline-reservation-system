@@ -7,8 +7,8 @@ from app import create_app
 def get_test_db():
     return pymysql.connect(
         host=os.getenv("TEST_DB_HOST", "localhost"),
-        user=os.getenv("TEST_DB_USER", "root"),
-        password=os.getenv("TEST_DB_PASSWORD", ""),
+        user=os.getenv("TEST_DB_USER", "airuser"),
+        password=os.getenv("TEST_DB_PASSWORD", "StrongPassword123!"),
         database=os.getenv("TEST_DB_NAME", "air"),
         cursorclass=pymysql.cursors.DictCursor,
     )
