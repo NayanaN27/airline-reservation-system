@@ -2,15 +2,14 @@
 name: Code Smell Issue
 about: Code smell identified using SonarQube and/or ChatGPT analysis
 title: "630:P2 [Tool] Short issue description"
-labels: code-smell
-assignees: ''
+
 ---
 
 ## Smell Summary
 
 ---
 
-## Location
+## Location<sub>(Paths)
 
 
 ---
@@ -35,5 +34,5 @@ assignees: ''
 
 ---
 
-## Estimated scope
+## Estimated scope <sub>(Small/Medium/Large)
 
