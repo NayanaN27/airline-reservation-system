@@ -4,7 +4,7 @@ from functools import wraps
 from app.models import db
 
 agent = Blueprint('agent', __name__)
-
+AGENT_SEARCH_FLIGHTS_ENDPOINT = "agent.search_flights"
 def agent_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -361,7 +361,7 @@ def book_ticket_for_customer():
 
             if not customer:
                 flash("Customer email does not exist.", "danger")
-                return redirect(url_for('agent.search_flights'))
+                return redirect(url_for(AGENT_SEARCH_FLIGHTS_ENDPOINT))
 
             # 检查航班是否存在
             cursor.execute("""
@@ -372,7 +372,7 @@ def book_ticket_for_customer():
 
             if not flight:
                 flash("Flight does not exist.", "danger")
-                return redirect(url_for('agent.search_flights'))
+                return redirect(url_for(AGENT_SEARCH_FLIGHTS_ENDPOINT))
 
             # 检查代理是否可以为该航空公司订票
             cursor.execute("""
@@ -416,7 +416,7 @@ def book_ticket_for_customer():
 
         if not flight:
             flash("Flight does not exist.", "danger")
-            return redirect(url_for('agent.search_flights'))
+            return redirect(url_for(AGENT_SEARCH_FLIGHTS_ENDPOINT))
 
         return render_template('agent/book_ticket_for_customer.html', flight=flight)
 
