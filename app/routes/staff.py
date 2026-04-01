@@ -8,6 +8,7 @@ from app.models import db
 from flask_wtf.csrf import CSRFProtect
 
 staff = Blueprint('staff', __name__, url_prefix='/staff')
+STAFF_DASHBOARD_ENDPOINT = "staff.dashboard"
 
 def get_staff_permissions(username):
     """获取员工权限"""
@@ -161,7 +162,7 @@ def approve_agents():
 
         if not admin_airline:
             flash('Unable to verify your airline.', 'danger')
-            return redirect(url_for('staff.dashboard'))
+            return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
         # Check admin permission
         cursor.execute("""
@@ -173,7 +174,7 @@ def approve_agents():
 
         if not admin_permission:
             flash('You do not have permission to approve agents.', 'danger')
-            return redirect(url_for('staff.dashboard'))
+            return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
         if request.method == 'POST':
             agent_emails = request.form.getlist('agent_emails')
@@ -220,7 +221,7 @@ def approve_agents():
         flash('An error occurred while approving agents. Please try again.', 'danger')
         print("Error occurred:", str(e))
         print("Current session at error:", session)
-        return redirect(url_for('staff.dashboard'))
+        return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
     finally:
         cursor.close()
         connection.close()
@@ -243,7 +244,7 @@ def approve_staff():
 
         if not admin_airline:
             flash('Unable to verify your airline.', 'danger')
-            return redirect(url_for('staff.dashboard'))
+            return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
         # 检查当前用户是否有admin权限
         cursor.execute("""
@@ -254,7 +255,7 @@ def approve_staff():
 
         if not admin_permission:
             flash('You do not have permission to approve staff members.', 'danger')
-            return redirect(url_for('staff.dashboard'))
+            return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
         if request.method == 'POST':
             usernames = request.form.getlist('usernames')
@@ -300,7 +301,7 @@ def approve_staff():
         flash('An error occurred while approving staff. Please try again.', 'danger')
         print("Error occurred:", str(e))
         print("Current session at error:", session)
-        return redirect(url_for('staff.dashboard'))
+        return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
     finally:
         cursor.close()
         connection.close()
@@ -466,7 +467,7 @@ def create_flight():
     """Create new flight"""
     if 'Admin' not in get_staff_permissions(session['user']):
         flash('Permission denied', 'danger')
-        return redirect(url_for('staff.dashboard'))
+        return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
     db = current_app.config['GET_DB']()
     cursor = db.cursor()
@@ -537,7 +538,7 @@ def add_airplane():
     """Add new airplane"""
     if 'Admin' not in get_staff_permissions(session['user']):
         flash('Permission denied', 'danger')
-        return redirect(url_for('staff.dashboard'))
+        return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
     if request.method == 'POST':
 
@@ -578,7 +579,7 @@ def add_airport():
     # Check if the user has Admin permissions
     if 'Admin' not in get_staff_permissions(session['user']):
         flash('You do not have the required permissions to add an airport.', 'danger')
-        return redirect(url_for('staff.dashboard'))
+        return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
     db = current_app.config['GET_DB']()
     cursor = db.cursor()
@@ -608,7 +609,7 @@ def add_airport():
             db.commit()
 
             flash('Airport added successfully!', 'success')
-            return redirect(url_for('staff.dashboard'))
+            return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
         except ValueError as e:
             flash(str(e), 'danger')
@@ -845,7 +846,7 @@ def grant_permission():
     """Grant permissions to other staff members"""
     if 'Admin' not in get_staff_permissions(session['user']):
         flash('Permission denied', 'danger')
-        return redirect(url_for('staff.dashboard'))
+        return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
     db = current_app.config['GET_DB']()
     cursor = db.cursor()
@@ -871,7 +872,7 @@ def grant_permission():
             ))
             db.commit()
             flash('Permission granted successfully', 'success')
-            return redirect(url_for('staff.dashboard'))
+            return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
         except ValueError as e:
             flash(str(e), 'danger')
@@ -903,7 +904,7 @@ def add_booking_agent():
     """Add booking agent to airline"""
     if 'Admin' not in get_staff_permissions(session['user']):
         flash('Permission denied', 'danger')
-        return redirect(url_for('staff.dashboard'))
+        return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
 
     db = current_app.config['GET_DB']()
     cursor = db.cursor()
@@ -982,6 +983,6 @@ def view_airplanes():
     except Exception as e:
         flash("An error occurred while fetching airplanes. Please try again.", "danger")
         print("Error:", e)
-        return redirect(url_for('staff.dashboard'))
+        return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
     finally:
         cursor.close()

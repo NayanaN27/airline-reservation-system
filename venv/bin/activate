@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/nayana/Srping2026/CSCI630/airline-reservation-system/venv"
+VIRTUAL_ENV="/Users/nayana/Spring2026/CSCI630/airline-reservation-system/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
