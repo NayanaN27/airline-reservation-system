@@ -6,6 +6,7 @@ from decimal import Decimal
 import json
 from app.models import db
 from flask_wtf.csrf import CSRFProtect
+from app.services.staff_service import fetch_flights_for_airline
 
 staff = Blueprint('staff', __name__, url_prefix='/staff')
 STAFF_DASHBOARD_ENDPOINT = "staff.dashboard"
@@ -306,53 +307,78 @@ def approve_staff():
         cursor.close()
         connection.close()
 
-
 @staff.route('/view_flights')
 @staff_required
 def view_flights():
     """View and filter flights"""
     db = current_app.config['GET_DB']()
-    cursor = db.cursor()
 
-    # Build query based on filters
-    base_query = """
-        SELECT f.*, a1.airport_city as departure_city, 
-               a2.airport_city as arrival_city
-        FROM flight f
-        JOIN airport a1 ON f.departure_airport = a1.airport_name
-        JOIN airport a2 ON f.arrival_airport = a2.airport_name
-        WHERE f.airline_name = %s
-    """
-    params = [session['airline_name']]
+    filters = {
+        "start_date": request.args.get("start_date"),
+        "end_date": request.args.get("end_date"),
+        "source": request.args.get("source"),
+        "destination": request.args.get("destination"),
+    }
 
-    if request.args.get('start_date'):
-        base_query += " AND f.departure_time >= %s"
-        params.append(request.args.get('start_date'))
-    if request.args.get('end_date'):
-        base_query += " AND f.departure_time <= %s"
-        params.append(request.args.get('end_date'))
-    if request.args.get('source'):
-        base_query += " AND (a1.airport_name LIKE %s OR a1.airport_city LIKE %s)"
-        search = f"%{request.args.get('source')}%"
-        params.extend([search, search])
-    if request.args.get('destination'):
-        base_query += " AND (a2.airport_name LIKE %s OR a2.airport_city LIKE %s)"
-        search = f"%{request.args.get('destination')}%"
-        params.extend([search, search])
+    flights = fetch_flights_for_airline(db, session['airline_name'], filters)
 
-    base_query += " ORDER BY f.departure_time"
-
-    cursor.execute(base_query, tuple(params))
-    flights = cursor.fetchall()
-
-    # Get staff permissions for template
+    # Get staff permissions for template (kept in route for now)
     staff_permissions = get_staff_permissions(session['user'])
 
-    cursor.close()
+    db.close()
 
-    return render_template('staff/view_flights.html',
-                           flights=flights,
-                           staff={'permissions': staff_permissions})
+    return render_template(
+        'staff/view_flights.html',
+        flights=flights,
+        staff={'permissions': staff_permissions},
+    )
+
+# @staff.route('/view_flights')
+# @staff_required
+# def view_flights():
+#     """View and filter flights"""
+#     db = current_app.config['GET_DB']()
+#     cursor = db.cursor()
+
+#     # Build query based on filters
+#     base_query = """
+#         SELECT f.*, a1.airport_city as departure_city, 
+#                a2.airport_city as arrival_city
+#         FROM flight f
+#         JOIN airport a1 ON f.departure_airport = a1.airport_name
+#         JOIN airport a2 ON f.arrival_airport = a2.airport_name
+#         WHERE f.airline_name = %s
+#     """
+#     params = [session['airline_name']]
+
+#     if request.args.get('start_date'):
+#         base_query += " AND f.departure_time >= %s"
+#         params.append(request.args.get('start_date'))
+#     if request.args.get('end_date'):
+#         base_query += " AND f.departure_time <= %s"
+#         params.append(request.args.get('end_date'))
+#     if request.args.get('source'):
+#         base_query += " AND (a1.airport_name LIKE %s OR a1.airport_city LIKE %s)"
+#         search = f"%{request.args.get('source')}%"
+#         params.extend([search, search])
+#     if request.args.get('destination'):
+#         base_query += " AND (a2.airport_name LIKE %s OR a2.airport_city LIKE %s)"
+#         search = f"%{request.args.get('destination')}%"
+#         params.extend([search, search])
+
+#     base_query += " ORDER BY f.departure_time"
+
+#     cursor.execute(base_query, tuple(params))
+#     flights = cursor.fetchall()
+
+#     # Get staff permissions for template
+#     staff_permissions = get_staff_permissions(session['user'])
+
+#     cursor.close()
+
+#     return render_template('staff/view_flights.html',
+#                            flights=flights,
+#                            staff={'permissions': staff_permissions})
 
 
 @staff.route('/change_status/<flight_num>', methods=['POST'])
