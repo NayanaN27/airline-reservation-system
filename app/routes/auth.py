@@ -20,50 +20,118 @@ def login_required(f):
 
     return decorated_function
 
+def _hash_md5(password: str) -> str:
+    return hashlib.md5(password.encode()).hexdigest()
 
+
+def _authenticate(user_type: str, username: str, hashed_password: str):
+    """
+    Returns (user, session_updates) if credentials are valid, else (None, None).
+    Keeps all DB queries and password checks in one place.
+    """
+    if user_type == "customer":
+        user = Customer.query.filter_by(email=username).first()
+        if user and user.password == hashed_password:
+            return user, {"user": user.email, "user_type": "customer"}
+
+    elif user_type == "agent":
+        user = BookingAgent.query.filter_by(email=username).first()
+        if user and user.password == hashed_password:
+            return user, {
+                "user": user.email,
+                "user_type": "agent",
+                "agent_id": user.booking_agent_id,
+            }
+
+    elif user_type == "staff":
+        user = AirlineStaff.query.filter_by(username=username).first()
+        if user and user.password == hashed_password:
+            # staff has an extra approval rule handled in login() for exact behavior preservation
+            return user, {
+                "user": user.username,
+                "user_type": "staff",
+                "airline_name": user.airline_name,
+            }
+
+    return None, None
+
+
+def _apply_session_updates(updates: dict) -> None:
+    for k, v in updates.items():
+        session[k] = v
+        
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        user_type = request.form.get('user_type')
-        username = request.form.get('username')
-        password = request.form.get('password')
+    if request.method != 'POST':
+        return render_template('auth/login.html')
 
-        # Hash password using MD5 as per project requirements
-        hashed_password = hashlib.md5(password.encode()).hexdigest()
+    user_type = request.form.get('user_type')
+    username = request.form.get('username')
+    password = request.form.get('password')
 
-        if user_type == 'customer':
-            user = Customer.query.filter_by(email=username).first()
-            if user and user.password == hashed_password:
-                session['user'] = user.email
-                session['user_type'] = 'customer'
-                flash('Welcome back!', 'success')
-                return redirect(url_for('public.index'))
+    hashed_password = _hash_md5(password)
 
-        elif user_type == 'agent':
-            user = BookingAgent.query.filter_by(email=username).first()
-            if user and user.password == hashed_password:
-                session['user'] = user.email
-                session['user_type'] = 'agent'
-                session['agent_id'] = user.booking_agent_id
-                flash('Welcome back!', 'success')
-                return redirect(url_for('public.index'))
-        elif user_type == 'staff':
-
-            user = AirlineStaff.query.filter_by(username=username).first()
-
-            if user and user.password == hashed_password:
-                if not user.approved:
-                    flash('Your account is pending approval. Please contact admin.', 'warning')
-                    return redirect(url_for('auth.login'))
-                session['user'] = user.username
-                session['user_type'] = 'staff'
-                session['airline_name'] = user.airline_name  # 确保这里使用 airline_name
-                print("生成的URL:", url_for('staff.dashboard'))  # 添加这行
-                flash('Welcome back!', 'success')
-                return redirect(url_for('public.index'))
+    user, session_updates = _authenticate(user_type, username, hashed_password)
+    if not user:
         flash('Invalid username or password.', 'danger')
         return redirect(url_for('auth.login'))
-    return render_template('auth/login.html')
+
+    # Preserve existing staff approval behavior exactly
+    if user_type == 'staff' and not user.approved:
+        flash('Your account is pending approval. Please contact admin.', 'warning')
+        return redirect(url_for('auth.login'))
+
+    _apply_session_updates(session_updates)
+
+    # Keep this line if you want it (it adds noise but leaving it preserves behavior)
+    if user_type == 'staff':
+        print("生成的URL:", url_for('staff.dashboard'))
+
+    flash('Welcome back!', 'success')
+    return redirect(url_for('public.index'))
+# @auth.route('/login', methods=['GET', 'POST'])
+# def login():
+#     if request.method == 'POST':
+#         user_type = request.form.get('user_type')
+#         username = request.form.get('username')
+#         password = request.form.get('password')
+
+#         # Hash password using MD5 as per project requirements
+#         hashed_password = hashlib.md5(password.encode()).hexdigest()
+
+#         if user_type == 'customer':
+#             user = Customer.query.filter_by(email=username).first()
+#             if user and user.password == hashed_password:
+#                 session['user'] = user.email
+#                 session['user_type'] = 'customer'
+#                 flash('Welcome back!', 'success')
+#                 return redirect(url_for('public.index'))
+
+#         elif user_type == 'agent':
+#             user = BookingAgent.query.filter_by(email=username).first()
+#             if user and user.password == hashed_password:
+#                 session['user'] = user.email
+#                 session['user_type'] = 'agent'
+#                 session['agent_id'] = user.booking_agent_id
+#                 flash('Welcome back!', 'success')
+#                 return redirect(url_for('public.index'))
+#         elif user_type == 'staff':
+
+#             user = AirlineStaff.query.filter_by(username=username).first()
+
+#             if user and user.password == hashed_password:
+#                 if not user.approved:
+#                     flash('Your account is pending approval. Please contact admin.', 'warning')
+#                     return redirect(url_for('auth.login'))
+#                 session['user'] = user.username
+#                 session['user_type'] = 'staff'
+#                 session['airline_name'] = user.airline_name  # 确保这里使用 airline_name
+#                 print("生成的URL:", url_for('staff.dashboard'))  # 添加这行
+#                 flash('Welcome back!', 'success')
+#                 return redirect(url_for('public.index'))
+#         flash('Invalid username or password.', 'danger')
+#         return redirect(url_for('auth.login'))
+#     return render_template('auth/login.html')
 
 
 @auth.route('/register', methods=['GET'])
