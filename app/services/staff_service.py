@@ -43,3 +43,20 @@ def fetch_flights_for_airline(db, airline_name, filters):
         return cursor.fetchall()
     finally:
         cursor.close()
+
+def fetch_airplanes_for_airline(db, airline_name):
+    """
+    Fetch airplanes for an airline. Extracted from staff.view_airplanes route.
+    """
+    cursor = db.cursor()
+    try:
+        query = """
+            SELECT airplane_id, seats
+            FROM airplane
+            WHERE airline_name = %s
+            ORDER BY airplane_id
+        """
+        cursor.execute(query, (airline_name,))
+        return cursor.fetchall()
+    finally:
+        cursor.close()

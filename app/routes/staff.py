@@ -7,6 +7,7 @@ import json
 from app.models import db
 from flask_wtf.csrf import CSRFProtect
 from app.services.staff_service import fetch_flights_for_airline
+from app.services.staff_service import fetch_airplanes_for_airline
 
 staff = Blueprint('staff', __name__, url_prefix='/staff')
 STAFF_DASHBOARD_ENDPOINT = "staff.dashboard"
@@ -992,23 +993,12 @@ def add_booking_agent():
 def view_airplanes():
     """View and manage airplanes"""
     db = current_app.config['GET_DB']()
-    cursor = db.cursor()
-
     try:
-        # Query to fetch airplanes for the airline
-        query = """
-            SELECT airplane_id, seats
-            FROM airplane
-            WHERE airline_name = %s
-            ORDER BY airplane_id
-        """
-        cursor.execute(query, (session['airline_name'],))
-        airplanes = cursor.fetchall()
-
+        airplanes = fetch_airplanes_for_airline(db, session['airline_name'])
         return render_template('staff/view_airplanes.html', airplanes=airplanes)
     except Exception as e:
         flash("An error occurred while fetching airplanes. Please try again.", "danger")
         print("Error:", e)
         return redirect(url_for('STAFF_DASHBOARD_ENDPOINT'))
     finally:
-        cursor.close()
+        db.close()
