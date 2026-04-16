@@ -1,5 +1,10 @@
-## 0. Issue name 
-Issue: 630:P3 <Anti-pattern> in <Component> → <Design Pattern>
+---
+name: "CSCI 630 Project 3 anti-pattern refactor issue"
+about: "P3 Part 1: identify an anti-pattern, justify impact, propose a design-pattern refactor plan"
+title: "630:P3 <Anti-pattern> in <Component> → <Design Pattern>"
+labels: ["630:P3"]
+assignees: []
+---
 
 ## 1. Anti-pattern summary
 <!-- 1–3 sentences describing the design problem. -->
