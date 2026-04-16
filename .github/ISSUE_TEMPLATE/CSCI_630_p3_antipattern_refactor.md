@@ -23,6 +23,49 @@ Anti-pattern: <!-- e.g., God Object / Shotgun Surgery / Global State Overuse / S
 ## 4. Evidence
 <!-- Include concrete evidence: snippet (5–15 lines) or screenshot + explanation. -->
 
-**Snippet (optional):**
-```text
-PASTE SNIPPET HERE
+
+## 5. Why this Matters
+<!-- Explain impact on maintainability -->
+
+## 6. Proposed Design Pattern Solution
+- Pattern Name:
+- Pattern Category: (Creational / Structural / Behavioral)
+- Why this pattern is a good fit:
+
+
+## 7. Refactoring Direction
+<!-- High-level plan, NOT full implementation -->
+- Step 1:
+- Step 2:
+- Step 3:
+
+## 8. Acceptance Criteria
+<!-- Must be observable and testable -->
+
+
+## 9. Non-goals / Constraints
+
+
+## 10. Suggested Verification Approach
+
+## 11. Estimated Scope
+- Scope: <!-- Small / Medium / Large -->
+- Reason:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
