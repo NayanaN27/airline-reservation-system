@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 from datetime import datetime, timedelta
 from functools import wraps
 from app.models import db
+from app.auth.access import require_access, AgentPolicy
 
 agent = Blueprint('agent', __name__)
 AGENT_SEARCH_FLIGHTS_ENDPOINT = "agent.search_flights"
@@ -36,7 +37,7 @@ def agent_required(f):
 
 
 @agent.route('/dashboard')  # Changed from /home to /dashboard
-@agent_required
+@require_access(AgentPolicy())
 def dashboard():
     """Agent dashboard showing summary and recent bookings"""
     connection = current_app.config['GET_DB']()
@@ -102,7 +103,7 @@ def dashboard():
 
 
 @agent.route('/flights', endpoint='my_flights')
-@agent_required
+@require_access(AgentPolicy())
 def view_flights():
     db = current_app.config['GET_DB']()
     cursor = db.cursor()
@@ -173,7 +174,7 @@ def view_flights():
 
 
 @agent.route('/commission', endpoint='commission')
-@agent_required
+@require_access(AgentPolicy())
 def view_commission():
     """View agent's commission with date range filtering"""
     connection = current_app.config['GET_DB']()
@@ -233,7 +234,7 @@ def view_commission():
 
 
 @agent.route('/top_customers', endpoint='top_customers')
-@agent_required
+@require_access(AgentPolicy())
 def view_top_customers():
     """View top customers by tickets and commission"""
     connection = current_app.config['GET_DB']()
@@ -292,7 +293,7 @@ def view_top_customers():
                            commission_amounts=commission_amounts)
 
 @agent.route('/search_flights', endpoint='search_flights')
-@agent_required
+@require_access(AgentPolicy())
 def search_flights():
     """Search flights for agents based on filters"""
     connection = current_app.config['GET_DB']()
@@ -341,7 +342,7 @@ def search_flights():
                            end_date=end_date)
 
 @agent.route('/book_ticket_for_customer', methods=['GET', 'POST'])
-@agent_required
+@require_access(AgentPolicy())
 def book_ticket_for_customer():
     connection = current_app.config['GET_DB']()
     cursor = connection.cursor()
