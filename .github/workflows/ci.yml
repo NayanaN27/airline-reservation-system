@@ -58,11 +58,11 @@ jobs:
             sleep 2
           done
 
-      - name: Load schema
-        run: |
-          mysql -h 127.0.0.1 -uroot -prootpassword ${{ secrets.DB_NAME }} < air.sql
-          # If needed:
-          # mysql -h 127.0.0.1 -uroot -prootpassword ${{ secrets.DB_NAME }} < seed.sql
+      # - name: Load schema
+      #   run: |
+      #     mysql -h 127.0.0.1 -uroot -prootpassword ${{ secrets.DB_NAME }} < air.sql
+      #     # If needed:
+      #     # mysql -h 127.0.0.1 -uroot -prootpassword ${{ secrets.DB_NAME }} < seed.sql
 
       - name: Run tests
         run: |
