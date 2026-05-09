@@ -8,6 +8,7 @@ from app.models import db
 from flask_wtf.csrf import CSRFProtect
 from app.services.staff_service import fetch_flights_for_airline
 from app.services.staff_service import fetch_airplanes_for_airline
+from app.services.flight_status import FlightStatusMachine
 
 staff = Blueprint('staff', __name__, url_prefix='/staff')
 STAFF_DASHBOARD_ENDPOINT = "staff.dashboard"
@@ -381,7 +382,6 @@ def view_flights():
 #                            flights=flights,
 #                            staff={'permissions': staff_permissions})
 
-
 @staff.route('/change_status/<flight_num>', methods=['POST'])
 @staff_required
 def change_status(flight_num):
@@ -395,9 +395,24 @@ def change_status(flight_num):
 
     cursor = db.cursor()
     try:
+        # Read current status for transition validation
         cursor.execute("""
-            UPDATE flight 
-            SET status = %s 
+            SELECT status
+            FROM flight
+            WHERE airline_name = %s AND flight_num = %s
+        """, (session['airline_name'], flight_num))
+        row = cursor.fetchone()
+        current_status = None
+        if row:
+            current_status = row.get("status") if hasattr(row, "get") else row[0]
+
+        decision = FlightStatusMachine.validate_transition(current_status, status)
+        if not decision.ok:
+            return jsonify({'error': decision.message}), 400
+
+        cursor.execute("""
+            UPDATE flight
+            SET status = %s
             WHERE airline_name = %s AND flight_num = %s
         """, (status, session['airline_name'], flight_num))
         db.commit()
